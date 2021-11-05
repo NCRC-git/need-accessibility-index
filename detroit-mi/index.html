@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>NCRC - Need & Accessibility Index - City of Detroit, MI</title>
+    <meta name='robots' content='noindex, nofollow'>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.4.1/mapbox-gl-geocoder.min.js'></script>
+    <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.4.1/mapbox-gl-geocoder.css' type='text/css' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.2.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.2.0/mapbox-gl.css' rel='stylesheet' />
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E2HPWQFQ8Z"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-E2HPWQFQ8Z');
+    </script>
+    <style>
+        body { margin:0; padding:0; }
+        h2, h3 {
+            margin: 10px;
+            font-size: 1.4em;
+        }
+        h3 {
+            font-size: 1em;
+        }
+        p {
+            font-size: 0.85em;
+            margin: 10px;
+            text-align: left;
+        }
+        #map { 
+            position:absolute; 
+            top:0; 
+            bottom:0; 
+            width:100%; 
+        }
+        .map-overlay {
+            position: fixed;
+            right: 40px;
+            bottom: 40px;
+            height: 95px;
+            background-color: rgba(255, 255, 255, .9);
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            color: black;
+            padding: 2px;
+            z-index: 1;
+        }
+        #features {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 50%;
+            overflow: auto;
+            background: rgba(255, 255, 255, 0.8);
+        }
+       
+        #legend {
+            border-radius: 2%;
+            padding: 10px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.30);
+            line-height: 15px;
+            height: 130px;
+            width: 130px;
+        }
+
+        .legend-key {
+            border-radius: 20%;
+            display: inline-block;
+            height: 10px;
+            width: 20px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+<style>
+        .mapboxgl-popup {
+            max-width: 120px;
+            font: 14px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+            border-radius: 2%;
+        }
+</style>
+
+<nav id="menu"></nav>
+<div id='map'></div>
+<div class='map-overlay' id='legend'>
+    <h4 style='margin-top:8px'>Need & Accessibility Index</h4>
+</div>
+
+
+<script>
+
+mapboxgl.accessToken = 'pk.eyJ1IjoiamVkbGViaSIsImEiOiJjanhhc3M4NnYwMmxsM3lyODlxYTFhOGRxIn0.746AmyW45uwRPeUy1PczOg';
+
+var map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/jedlebi/ckvjw9nun0ux214qg9fejoqku',
+    center: [-83.1,42.365],
+    zoom: 11.5,
+    minZoom: 11.5
+});
+var popup1 = new mapboxgl.Popup({
+        closeButton: true,
+        closeOnClick: false
+      });
+var popup2 = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false
+      });
+
+map.on('load', function () {
+    
+    // make a pointer cursor
+    map.getCanvas().style.cursor = 'default';
+
+    // Round values to nearest whole integer and include thousand seperators.
+    function round(num) {
+        return num.toFixed(0).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+    }
+    
+    // define layer names
+    var layers = ['Very Low','Low','Medium','High', 'Very High'];
+    var colors = ['#1d5601', '#4fbf18', '#fbdc13', '#f8820d', '#bc0101'];
+
+    // Round values to nearest first whole number and include thousand seperators.
+    function decimalRound0(num) {
+        return num.toFixed(0).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+    }
+
+    // Round values to nearest first decimal and include thousand seperators.
+    function decimalRound1(num) {
+        return num.toFixed(1).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+    }
+
+    // Round values to nearest second decimal and include thousand seperators.
+    function decimalRound2(num) {
+        return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+    }
+        
+    // When a click event occurs on a feature in the layer, open a popup at the location of the click, with description HTML from its properties.
+    map.on('click', 'tracts', function (e) {
+        var lmi1 = e.features[0].properties.income // Low-to-Moderate Income
+        var lmi2 = e.features[0].properties.income2 // LMI
+        var zip = e.features[0].properties.ZCTA5CE10
+        var nai = e.features[0].properties.nai
+        if (nai < 0.2) {
+            nai1 = "<h1 style=text-align:center;width:100%;>"+ "NAI: " + "<color:#1E4B00>" + nai + "</h1>"
+        } else if (nai >= 0.2 || nai < 0.4) {
+            nai1 = "<h1 style=text-align:center;width:100%;>"+ "NAI: " + "<color:#82BB5D>" + nai + "</h1>"
+        } else if (nai >= 0.4 || nai < 0.6) {
+            nai1 = "<h1 style=text-align:center;width:100%;>"+ "NAI: " + "<color:#AA9439>" + nai + "</h1>"
+        } else if (nai >= 0.6 || nai < 0.8) {
+            nai1 = "<h1 style=text-align:center;width:100%;>"+ "NAI: " + "<color:#BE7A1D>" + nai + "</h1>"
+        } else if (nai >= 0.8) {
+            nai1 = "<h1 style=text-align:center;width:100%;>"+ "NAI: " + "<color:#BE301D>" + nai + "</h1>"
+        } else {
+            null
+        }
+        var tract = e.features[0].properties.geoid
+        var busden = decimalRound0(e.features[0].properties.busden) + "/mi" + "<sup>2</sup>"
+        var popden = decimalRound0(e.features[0].properties.popden) + "/mi" + "<sup>2</sup>"
+        var min = e.features[0].properties.minority_p + "%"
+        var pop = decimalRound0(e.features[0].properties.population)
+
+        popup1
+            .setLngLat(e.lngLat)
+            .setHTML(
+            nai1 +
+            "<table style='width:100%;text-align:center'>" + 
+                "<tr>" + 
+                    "<th style=color:#990033>"+ lmi1 + "</th>" + 
+                "</tr>" + 
+            "</table>" + 
+            "<p></p>" +
+            "<table style='width:100%;text-align:center'>" + 
+                "<tr>" + 
+                    "<th>Tract ID</th>" +
+                "</tr>" + 
+                "<tr style='font-size:20px;text-align:center'>" + 
+                    "<th>" + 
+                        tract +
+                    "</th>" +
+                "</tr>" +
+            "</table>" +
+            "<p></p>" +
+            "<table style='width:100%;text-align:center'>" + 
+                "<tr>" + 
+                    "<th>Minority Population</th>" +
+                "</tr>" + 
+                "<tr style='font-size:20px;text-align:center'>" + 
+                    "<th>" + 
+                        min +
+                    "</th>" +
+                "</tr>" +
+            "</table>" +
+            "<p></p>" +
+            "<table style='width:100%;text-align:center'>" + 
+                "<tr>" + 
+                    "<th style='width:50%'>Population Density</th>" + 
+                    "<th style='width:50%'>Business Density</th>" + 
+                "</tr>" + 
+                "<tr style='font-size:20px;text-align:center'>" + 
+                    "<th style='width:50%'>" + 
+                        popden + 
+                    "</th>" + 
+                    "<th style='width:50%'>" + 
+                        busden +
+                    "</th>" +
+                "</tr>" +
+            "</table>"
+            )
+            .addTo(map);
+    });
+    map.on('mouseenter', 'branches', function (e) {
+        var bank = e.features[0].properties.bank_name
+        var branch = e.features[0].properties.branch_nam
+        var address = e.features[0].properties.address
+        var city = e.features[0].properties.city
+        var state = e.features[0].properties.state_abbr
+        var zip = e.features[0].properties.zip
+
+        popup2
+            .setLngLat(e.lngLat)
+            .setHTML(
+            "<table style='width:100%;text-align:center'>" + 
+                "<tr style='font-size:20px;text-align:center'>" + 
+                    "<th>"+ bank + "</th>" + 
+                "</tr>" + 
+            "</table>" + 
+            "<table style='width:100%;text-align:center'>" + 
+                "<tr style='font-size:15px;text-align:center'>" + 
+                    "<td style=font-style:italic>" + 
+                        branch +
+                    "</td>" +
+                "</tr>" +
+            "</table>" +
+            "<table style='width:100%;text-align:center'>" + 
+                "<tr>" + 
+                    "<td>" + 
+                        address +
+                    "</td>" +
+                "</tr>" + 
+                "<tr>" + 
+                    "<td>" + 
+                        city + ", " + state + " " + zip +
+                    "</td>" +
+                "</tr>" +
+            "</table>"
+            )
+            .addTo(map);
+    });
+    map.on('mouseleave', 'branches', function () {
+        popup2.remove();
+    });
+
+    // Change the cursor to a pointer when the mouse is over the layer.
+    map.on('mouseenter', 'nai', function () {
+        map.getCanvas().style.cursor = 'pointer';
+    });
+
+    // Change it back to a pointer when it leaves.
+    map.on('mouseleave', 'nai', function () {
+        map.getCanvas().style.cursor = '';
+    });
+    
+    // Add a search bar to the map.
+    map.addControl(new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        bbox: [-83.313051,38.431551,-74.975319,42.453111],
+        mapboxgl: mapboxgl
+    }));
+    
+    // Add in option for full-screen.
+    map.addControl(new mapboxgl.FullscreenControl());
+
+    // create legend
+    for (i=0; i<layers.length; i++) {
+       var layer = layers[i];
+       var color = colors[i];
+       var item = document.createElement('div');
+       var key = document.createElement('span');
+       key.className = 'legend-key';
+       key.style.backgroundColor = color;
+ 
+       var value = document.createElement('span');
+          value.innerHTML = layer;
+          item.appendChild(key);
+          item.appendChild(value);
+          legend.appendChild(item);
+    }
+});
+</script>
+</body>
+</html>
