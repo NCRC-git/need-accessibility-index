@@ -119,6 +119,15 @@ map.on('load', function () {
     // make a pointer cursor
     map.getCanvas().style.cursor = 'default';
 
+    //logo position: bottomright, topright, topleft, bottomleft
+    var logo = L.control({position: 'bottomleft'});
+    logo.onAdd = function(map){
+        var div = L.DomUtil.create('div', 'myclass');
+        div.innerHTML= "<img src='./ncrc.jpg'>";
+        return div;
+    }
+    logo.addTo(map);
+    
     // Round values to nearest whole integer and include thousand seperators.
     function round(num) {
         return num.toFixed(0).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
