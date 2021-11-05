@@ -37,6 +37,14 @@
             bottom:0; 
             width:100%; 
         }
+        #logo {
+            position: absolute;
+            border-radius: 3px;
+            bottom: 30px;
+            left: 20px;
+            width: 2px;
+            opacity: 80%;
+        }
         .map-overlay {
             position: fixed;
             right: 40px;
@@ -88,10 +96,11 @@
 </style>
 
 <nav id="menu"></nav>
-<div id='map'></div>
+<div id="map"></div>
 <div class='map-overlay' id='legend'>
     <h4 style='margin-top:8px'>Need & Accessibility Index</h4>
 </div>
+<pre id="logo"></pre>
 
 
 <script>
@@ -119,15 +128,9 @@ map.on('load', function () {
     // make a pointer cursor
     map.getCanvas().style.cursor = 'default';
 
-    //logo position: bottomright, topright, topleft, bottomleft
-    var logo = L.control({position: 'bottomleft'});
-    logo.onAdd = function(map){
-        var div = L.DomUtil.create('div', 'myclass');
-        div.innerHTML= "<img src='./ncrc.jpg'>";
-        return div;
-    }
-    logo.addTo(map);
-    
+    // NCRC logo
+    document.getElementById('logo').innerHTML = "<img src='./ncrc.png'>"
+
     // Round values to nearest whole integer and include thousand seperators.
     function round(num) {
         return num.toFixed(0).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
@@ -189,11 +192,15 @@ map.on('load', function () {
             "<p></p>" +
             "<table style='width:100%;text-align:center'>" + 
                 "<tr>" + 
-                    "<th>Tract ID</th>" +
+                    "<th style='width:60%;text-align:center'>Tract ID</th>" +
+                    "<th style='width:40%;text-align:center'>ZIP</th>" +
                 "</tr>" + 
                 "<tr style='font-size:20px;text-align:center'>" + 
-                    "<th>" + 
+                    "<th style='width:60%;text-align:center'>" + 
                         tract +
+                    "</th>" +
+                    "<th style='width:40%;text-align:center'>" + 
+                        zip +
                     "</th>" +
                 "</tr>" +
             "</table>" +
